@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gerador de Imagens - Subnp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      padding: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      font-size: 16px;
+      padding: 10px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    img {
+      margin-top: 20px;
+      max-width: 100%;
+      border: 2px solid #333;
+    }
+    .status {
+      margin-top: 10px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Gerador de Imagens (Subnp)</h1>
+
+  <textarea id="prompt" placeholder="Descreva a imagem com o máximo de detalhes"></textarea>
+  <br />
+  <button onclick="gerar()">Gerar Imagem</button>
+
+  <div class="status" id="status"></div>
+  <img id="img" />
+
+  <script>
+    async function gerar() {
+      const prompt = document.getElementById("prompt").value;
+      const status = document.getElementById("status");
+      const img = document.getElementById("img");
+
+      if (!prompt || prompt.length < 3) {
+        alert("Digite um prompt decente.");
+        return;
+      }
+
+      status.textContent = "Gerando imagem...";
+      img.src = "";
+
+      try {
+        const res = await fetch("/api/generate-image", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ prompt })
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+          status.textContent = "Erro ao gerar imagem.";
+          console.error(data);
+          return;
+        }
+
+        img.src = data.image;
+        status.textContent = "Imagem gerada com sucesso.";
+
+      } catch (err) {
+        status.textContent = "Falha na requisição.";
+        console.error(err);
+      }
+    }
+  </script>
+
+</body>
+</html>
